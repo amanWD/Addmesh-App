@@ -1,5 +1,6 @@
 import {useEffect, useRef} from 'react';
 import {Animated, Easing, Text} from 'react-native';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const Loading = ({color, size = 18}: {color: string; size: number}) => {
   const rotateAnim = useRef(new Animated.Value(0)).current;
@@ -25,7 +26,7 @@ const Loading = ({color, size = 18}: {color: string; size: number}) => {
   }, [rotateAnim]);
   return (
     <Animated.View style={{transform: [{rotate: spin}]}}>
-      <Text>Loading</Text>
+      <AntDesign name="loading1" size={size} color={color} />
     </Animated.View>
   );
 };

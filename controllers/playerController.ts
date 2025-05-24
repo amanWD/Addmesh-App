@@ -1,25 +1,26 @@
-// audioPlayer.ts
-import TrackPlayer from 'react-native-track-player';
-import {usePlaylistStore} from '../hooks/usePlaylistStore';
+import TrackPlayer, {Capability} from 'react-native-track-player';
+import {Track} from '../types/PlaylistType';
 
-export const playCurrentTrack = async () => {
-  const {id, chapter, currentChapterIndex, currentAudioIndex} =
-    usePlaylistStore();
+export const setupPlayer = async () => {
+  await TrackPlayer.setupPlayer();
 
-  const currentChapter = chapter[currentChapterIndex];
-  if (!currentChapter) return;
-
-  const trackUrl = `https://stage.addmeshbook.com/media/${chapter[currentChapterIndex]?.playlist[currentAudioIndex]}`;
-  if (!trackUrl) return;
-
-  await TrackPlayer.reset();
-
-  await TrackPlayer.add({
-    id: `${id}`,
-    url: trackUrl,
-    title: `Track ${currentAudioIndex + 1}`,
-    artist: currentChapter.name,
+  await TrackPlayer.updateOptions({
+    capabilities: [
+      Capability.Play,
+      Capability.Pause,
+      Capability.Stop,
+      Capability.SeekTo,
+      Capability.SkipToNext,
+      Capability.SkipToPrevious,
+    ],
+    compactCapabilities: [Capability.Play, Capability.Pause],
   });
+};
+
+export const addTracks = async (tracks: Track[]) => {
+  setupPlayer();
+
+  await TrackPlayer.add(tracks);
 
   await TrackPlayer.play();
 };

@@ -5,7 +5,7 @@ export type BlogType = {
   tag: string;
   created_at: string;
   updated_at: string;
-  isSaved: boolean;
+  is_saved: boolean;
 };
 
 export type EbookType = {
@@ -19,6 +19,7 @@ export type EbookType = {
   updated_at: string;
   ebook_file: string;
   is_saved: boolean;
+  is_free: boolean;
   is_bought: boolean;
 };
 
@@ -33,6 +34,7 @@ export type AudioBookType = {
   updated_at: string;
   playlist: number[];
   is_saved: boolean;
+  is_free: boolean;
   is_bought: boolean;
 };
 
@@ -47,6 +49,7 @@ export type ExplanationAudioType = {
   updated_at: string;
   chapters: number[];
   is_saved: boolean;
+  is_free: boolean;
   is_bought: boolean;
 };
 
@@ -66,3 +69,10 @@ export type EventType = {
   ending_time: string;
   image: string;
 };
+
+export type ProductType =
+  | 'Ebooks'
+  | 'Audio Books'
+  | 'Explanation Audios'
+  | 'Blogs'
+  | 'Events';

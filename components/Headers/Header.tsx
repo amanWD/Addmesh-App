@@ -4,17 +4,21 @@ import colors from '../../styles/color';
 import {useNavigation} from '@react-navigation/native';
 import {RootNavigationParamList} from '../../types/NavigationType';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import Entypo from 'react-native-vector-icons/Entypo';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 type NavigationProps = NativeStackNavigationProp<RootNavigationParamList>;
 
 const Header = () => {
   const {top} = useSafeAreaInsets();
 
-  const {navigate} = useNavigation<NavigationProps>();
+  const {navigate} = useNavigation<any>();
 
   return (
     <View style={[styles.container, {height: 70 + top}]}>
-      <TouchableOpacity style={styles.logo}>
+      <TouchableOpacity style={styles.logo} onPress={() => navigate('Home')}>
         <Image
           source={require('../../assets/images/AddmeshLogo.png')}
           style={styles.logo}
@@ -22,16 +26,24 @@ const Header = () => {
       </TouchableOpacity>
       <View style={styles.rightLink}>
         <TouchableOpacity>
-          <Text>Help</Text>
+          <Entypo name="help-with-circle" size={24} color={colors.secondary} />
         </TouchableOpacity>
-        <TouchableOpacity>
-          <Text>Cart</Text>
+        <TouchableOpacity onPress={() => navigate('Cart')}>
+          <FontAwesome
+            name="shopping-cart"
+            size={24}
+            color={colors.secondary}
+          />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigate('Account')}>
-          <Text>Account</Text>
+          <MaterialIcons
+            name="account-circle"
+            size={26}
+            color={colors.secondary}
+          />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigate('EpubReader')}>
-          <Text>Search</Text>
+        <TouchableOpacity onPress={() => navigate('Search')}>
+          <AntDesign name="search1" size={22} color={colors.secondary} />
         </TouchableOpacity>
       </View>
     </View>
@@ -60,7 +72,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    columnGap: 20,
+    columnGap: 25,
     right: 20,
     bottom: 15,
   },

@@ -1,47 +1,68 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, TouchableOpacity, Animated, Text, StyleSheet} from 'react-native';
-import {toggleSave} from '../utils/productUtils';
-import Loading from './Loading';
-import {useIdListStore} from '../hooks/useIdListStore';
+import {toggleSave} from '../../utils/productUtils';
+import Loading from '../Loading';
+import {useIdListStore} from '../../hooks/useIdListStore';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
-import {usePlaylistStore} from '../hooks/usePlaylistStore';
+import {usePlaylistStore} from '../../hooks/usePlaylistStore';
+import {Playlist, Track} from '../../types/PlaylistType';
+import {addTracks} from '../../controllers/playerController';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import colors from '../../styles/color';
+import {ProductType} from '../../types/ProductType';
 
 type CollapsibleImageProps = {
   data: any;
   scrollY: any;
   refetch: any;
-  type: 'Ebook' | 'Audio Book' | 'Explanation Audio' | 'Event';
+  setId: any;
+  type: ProductType;
 };
 
-export const CollapsibleImage = ({
+export const CollapsibleHeader = ({
   data,
   scrollY,
   refetch,
+  setId,
   type,
 }: CollapsibleImageProps) => {
   const {idList, idType} = useIdListStore();
 
-  const {setChapter} = usePlaylistStore();
+  const {setChapters, setTrackImageUrl, chapters} = usePlaylistStore();
 
-  const {goBack} = useNavigation();
-
-  const [ebookId, setEbookId] = useState(data?.data.id);
+  const {goBack, navigate} = useNavigation<any>();
 
   const {top} = useSafeAreaInsets();
 
   const [loadingSave, setLoadingSave] = useState(false);
 
   const next = () => {
-    const index = idList.indexOf(ebookId);
-    if (index === idList.length - 1) setEbookId(idList[0]);
-    else setEbookId(idList[index + 1]);
+    const index = idList.indexOf(data?.data.id);
+    if (index === idList.length - 1) setId(idList[0]);
+    else setId(idList[index + 1]);
   };
 
   const previous = () => {
-    const index = idList.indexOf(ebookId);
-    if (index === 0) setEbookId(idList[idList.length - 1]);
-    else setEbookId(idList[index - 1]);
+    const index = idList.indexOf(data?.data.id);
+    if (index === 0) setId(idList[idList.length - 1]);
+    else setId(idList[index - 1]);
+  };
+
+  const addAudioBookToTrack = () => {
+    var tracks: Track[] = [];
+    data.data.playlist.map((audio: Playlist) => {
+      tracks.push({
+        id: audio.url,
+        url: audio.url,
+        title: audio.title,
+        duration: audio.duration,
+      });
+    });
+    addTracks(tracks);
   };
 
   const imageHeight = scrollY.interpolate({
@@ -76,9 +97,9 @@ export const CollapsibleImage = ({
       <TouchableOpacity
         style={[styles.backBtn, {top: top + 35}]}
         onPress={goBack}>
-        <Text>Back</Text>
+        <Ionicons name="chevron-back" size={28} color={colors.primary} />
       </TouchableOpacity>
-      {data?.data.is_bought ? (
+      {data?.data.is_bought || data?.data.is_free ? (
         <TouchableOpacity
           style={[styles.saveBtn, {top: top + 35}]}
           onPress={() => {
@@ -87,9 +108,21 @@ export const CollapsibleImage = ({
           {loadingSave ? (
             <Loading size={22} color="black" />
           ) : data?.data.is_saved ? (
-            <Animated.Text style={{opacity: opacity}}>Saved</Animated.Text>
+            <Animated.View style={{opacity: opacity}}>
+              <MaterialIcons
+                name="bookmark-added"
+                size={32}
+                color={colors.green}
+              />
+            </Animated.View>
           ) : (
-            <Animated.Text style={{opacity: opacity}}>Save</Animated.Text>
+            <Animated.View style={{opacity: opacity}}>
+              <MaterialIcons
+                name="bookmark-add"
+                size={32}
+                color={colors.primary}
+              />
+            </Animated.View>
           )}
         </TouchableOpacity>
       ) : null}
@@ -105,28 +138,29 @@ export const CollapsibleImage = ({
           style={[
             styles.prevBtn,
             {
-              display:
-                idList.length > 2 || idType === 'Ebooks' ? 'flex' : 'none',
+              display: idList.length > 1 || idType === type ? 'flex' : 'none',
             },
           ]}
           onPress={previous}>
-          <Text>Previous</Text>
+          <AntDesign name="banckward" size={32} color={colors.brown} />
         </TouchableOpacity>
         <Animated.Image
           src={data?.data.image}
-          style={[styles.image, {height: imageHeight}]}
+          style={[
+            styles.image,
+            {height: imageHeight, width: type === 'Events' ? '90%' : '60%'},
+          ]}
           resizeMode={'contain'}
         />
         <TouchableOpacity
           style={[
             styles.nextBtn,
             {
-              display:
-                idList.length > 2 || idType === 'Ebooks' ? 'flex' : 'none',
+              display: idList.length > 1 || idType === type ? 'flex' : 'none',
             },
           ]}
           onPress={next}>
-          <Text>Next</Text>
+          <AntDesign name="forward" size={32} color={colors.brown} />
         </TouchableOpacity>
       </Animated.View>
       <Animated.Text
@@ -139,10 +173,10 @@ export const CollapsibleImage = ({
             opacity: textOpacity,
           },
         ]}>
-        {data?.data.title.slice(0, 18)}
-        {data?.data.title.length > 18 ? '...' : ''}
+        {data?.data.title?.slice(0, 18)}
+        {data?.data.title?.length > 18 ? '...' : ''}
       </Animated.Text>
-      {type === 'Ebook' ? (
+      {type === 'Ebooks' ? (
         <View
           style={{
             position: 'absolute',
@@ -154,11 +188,16 @@ export const CollapsibleImage = ({
             zIndex: 20,
           }}>
           <TouchableOpacity
-            disabled={!data?.data.is_bought}
+            disabled={!data?.data.is_bought && !data?.data.is_free}
             style={{
-              ...styles.readBtn,
-              opacity: !data?.data.is_bought ? 0.5 : 1,
-            }}>
+              ...styles.actionBtn,
+              opacity: !data?.data.is_bought && !data?.data.is_free ? 0.5 : 1,
+            }}
+            onPress={() =>
+              navigate('WebViewPage', {
+                uri: 'https://stage.addmeshbook.com/Library/Reader',
+              })
+            }>
             <Text
               style={{
                 fontWeight: '900',
@@ -168,9 +207,10 @@ export const CollapsibleImage = ({
               }}>
               Read
             </Text>
+            <FontAwesome5 name="book-open" size={24} color={colors.green2} />
           </TouchableOpacity>
         </View>
-      ) : type === 'Audio Book' ? (
+      ) : type === 'Audio Books' ? (
         <View
           style={{
             position: 'absolute',
@@ -182,15 +222,17 @@ export const CollapsibleImage = ({
             zIndex: 20,
           }}>
           <TouchableOpacity
-            disabled={!data?.data.is_bought}
+            disabled={!data?.data.is_bought && !data?.data.is_free}
             style={{
-              ...styles.readBtn,
-              opacity: !data?.data.is_bought ? 0.5 : 1,
+              ...styles.actionBtn,
+              opacity: !data?.data.is_bought && !data?.data.is_free ? 0.5 : 1,
             }}
             onPress={() => {
-              setChapter([
+              setChapters([
                 {name: data?.data.title, playlist: data?.data.playlist},
               ]);
+              setTrackImageUrl(data?.data.image);
+              addAudioBookToTrack();
             }}>
             <Text
               style={{
@@ -201,9 +243,15 @@ export const CollapsibleImage = ({
               }}>
               Play
             </Text>
+            <MaterialIcons
+              name="play-arrow"
+              size={38}
+              color={colors.green2}
+              style={{position: 'absolute', top: 9, right: 13}}
+            />
           </TouchableOpacity>
         </View>
-      ) : type === 'Explanation Audio' ? (
+      ) : type === 'Explanation Audios' ? (
         <View
           style={{
             position: 'absolute',
@@ -215,13 +263,13 @@ export const CollapsibleImage = ({
             zIndex: 20,
           }}>
           <TouchableOpacity
-            disabled={!data?.data.is_bought}
+            disabled={!data?.data.is_bought && !data?.data.is_free}
             style={{
-              ...styles.readBtn,
-              opacity: !data?.data.is_bought ? 0.5 : 1,
+              ...styles.actionBtn,
+              opacity: !data?.data.is_bought && !data?.data.is_free ? 0.5 : 1,
             }}
             onPress={() => {
-              setChapter(data?.data.chapters);
+              setChapters(data?.data.chapters);
             }}>
             <Text
               style={{
@@ -232,6 +280,12 @@ export const CollapsibleImage = ({
               }}>
               Play
             </Text>
+            <MaterialIcons
+              name="play-arrow"
+              size={38}
+              color={colors.green2}
+              style={{position: 'absolute', top: 9, right: 13}}
+            />
           </TouchableOpacity>
         </View>
       ) : (
@@ -246,10 +300,10 @@ export const CollapsibleImage = ({
             zIndex: 20,
           }}>
           <TouchableOpacity
-            disabled={!data?.data.is_bought}
+            disabled={!data?.data.is_bought && !data?.data.is_free}
             style={{
-              ...styles.readBtn,
-              opacity: !data?.data.is_bought ? 0.5 : 1,
+              ...styles.actionBtn,
+              opacity: !data?.data.is_bought && !data?.data.is_free ? 0.5 : 1,
             }}>
             <Text
               style={{
@@ -260,6 +314,12 @@ export const CollapsibleImage = ({
               }}>
               Join
             </Text>
+            <Ionicons
+              name="enter"
+              size={28}
+              color={colors.green2}
+              style={{position: 'absolute', left: 12}}
+            />
           </TouchableOpacity>
         </View>
       )}
@@ -280,30 +340,12 @@ const styles = StyleSheet.create({
   prevBtn: {
     position: 'absolute',
     left: -45,
-    backgroundColor: '#4f371f',
-    borderRadius: 10,
     padding: 8,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 45,
-    height: 35,
-    zIndex: 10,
-    opacity: 0.85,
   },
   nextBtn: {
     position: 'absolute',
     right: -45,
-    backgroundColor: '#4f371f',
-    borderRadius: 10,
     padding: 8,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 45,
-    height: 35,
-    zIndex: 10,
-    opacity: 0.85,
   },
   backBtn: {
     position: 'absolute',
@@ -323,9 +365,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#552f6e',
+    color: colors.primary,
   },
-  readBtn: {
+  actionBtn: {
     width: 55,
     backgroundColor: '#552f6e',
     padding: 11,

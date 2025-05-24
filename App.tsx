@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 
 import './i18next/i18n.config';
@@ -7,19 +7,16 @@ import RootNavigation from './navigation/RootNavigation';
 import {AuthProvider} from './context/AuthContext';
 import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
 import colors from './styles/color';
-import TrackPlayer from 'react-native-track-player';
-import trackPlayerService from './services/trackPlayerService';
-const queryClient = new QueryClient();
 
-TrackPlayer.registerPlaybackService(() => trackPlayerService);
+const queryClient = new QueryClient();
 
 const toastConfig = {
   success: (props: any) => (
     <BaseToast
       {...props}
       style={{
-        borderLeftColor: colors.purple,
-        backgroundColor: colors.gray,
+        borderLeftColor: colors.tertiory,
+        zIndex: 110,
       }}
       contentContainerStyle={{paddingHorizontal: 15}}
       text1Style={{
@@ -31,6 +28,12 @@ const toastConfig = {
   error: (props: any) => (
     <ErrorToast
       {...props}
+      style={{
+        borderLeftColor: colors.purple,
+        backgroundColor: colors.gray,
+        zIndex: 110,
+      }}
+      contentContainerStyle={{paddingHorizontal: 15}}
       text1Style={{
         fontSize: 15,
         fontWeight: 'bold',
@@ -49,9 +52,9 @@ function App(): React.JSX.Element {
       <NavigationContainer>
         <QueryClientProvider client={queryClient}>
           <RootNavigation />
-          <Toast position="bottom" config={toastConfig} />
         </QueryClientProvider>
       </NavigationContainer>
+      <Toast position="top" config={toastConfig} />
     </AuthProvider>
   );
 }

@@ -1,5 +1,5 @@
 import {useQuery} from '@tanstack/react-query';
-import React, {useLayoutEffect, useState} from 'react';
+import React, {useContext, useLayoutEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -14,11 +14,12 @@ import EditedTag from '../../components/EditedTag';
 import {useIdListStore} from '../../hooks/useIdListStore';
 import {useCartStore} from '../../hooks/useCartStore';
 import api from '../../utils/api';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {StackParamList} from '../../types/NavigationType';
-import {CollapsibleImage} from '../../components/CollapsibleImage';
+import {CollapsibleHeader} from '../../components/Headers/CollapsibleHeader';
 import {Screen} from '../../components/Screen';
+import {AuthContext} from '../../context/AuthContext';
+import colors from '../../styles/color';
 
 type DetailRouteProp = RouteProp<StackParamList, 'ExplanationAudioDetail'>;
 
@@ -29,9 +30,9 @@ export default function ExplanationAudioDetail() {
 
   const [explanationAudioId, setExplanationAudioId] = useState(id);
 
-  const navigation = useNavigation();
+  const {navigate, getParent} = useNavigation<any>();
 
-  const {idList, idType} = useIdListStore();
+  const authContext = useContext(AuthContext);
 
   const {addItem, removeItem, cart} = useCartStore();
 
@@ -50,7 +51,7 @@ export default function ExplanationAudioDetail() {
   });
 
   useLayoutEffect(() => {
-    const parent = navigation.getParent();
+    const parent = getParent();
     parent?.setOptions({
       headerShown: false,
     });
@@ -60,7 +61,7 @@ export default function ExplanationAudioDetail() {
         headerShown: true,
       });
     };
-  }, [navigation]);
+  }, [navigate]);
 
   const readableCreatedDate =
     data?.data.created_at && !isNaN(new Date(data.data.created_at).getTime())
@@ -75,11 +76,12 @@ export default function ExplanationAudioDetail() {
   return (
     <Screen isLoading={isLoading} isError={isError} error={error} data={data}>
       <View style={styles.container}>
-        <CollapsibleImage
+        <CollapsibleHeader
           data={data}
           scrollY={scrollY}
           refetch={refetch}
-          type="Explanation Audio"
+          setId={setExplanationAudioId}
+          type="Explanation Audios"
         />
         <ScrollView
           style={{alignSelf: 'flex-start', paddingTop: 20, width: '100%'}}
@@ -97,7 +99,7 @@ export default function ExplanationAudioDetail() {
           }>
           <View style={styles.explanationAudioDetailContainer}>
             <Text style={styles.title}>{data?.data.title}</Text>
-            {data?.data.is_bought ? null : (
+            {data?.data.is_bought || data?.data.is_free ? null : (
               <>
                 <Text style={{marginTop: 10, fontSize: 18}}>
                   <Text style={{fontWeight: '900', fontSize: 16}}>Price:</Text>{' '}
@@ -115,48 +117,44 @@ export default function ExplanationAudioDetail() {
                     <>
                       <TouchableOpacity
                         style={[styles.ActionBtn, {backgroundColor: '#212121'}]}
-                        //   onPress={() => {
-                        //     if (authContext?.user) {
-                        //       addItem({
-                        //         id: data?.data.id,
-                        //         image: data?.data.image,
-                        //         title: data?.data.title,
-                        //         price_in_etb: data?.data.price_in_etb,
-                        //         price_in_usd: data?.data.price_in_usd,
-                        //         quantity: 1,
-                        //         type: data?.data.type,
-                        //       });
-                        //       router.navigate({
-                        //         pathname: '/web_view_stack',
-                        //         params: {
-                        //           uri: 'http://10.6.159.147:3000/Cart/Checkout',
-                        //         },
-                        //       });
-                        //     } else {
-                        //       router.navigate('/(account)/login_modal');
-                        //     }
-                        //   }}
-                      >
+                        onPress={() => {
+                          if (authContext?.user) {
+                            addItem({
+                              id: data?.data.id,
+                              image: data?.data.image,
+                              title: data?.data.title,
+                              price_in_etb: data?.data.price_in_etb,
+                              price_in_usd: data?.data.price_in_usd,
+                              quantity: 1,
+                              type: data?.data.type,
+                            });
+
+                            navigate('WebViewPage', {
+                              uri: 'https://stage.addmeshbook.com/Cart/Checkout',
+                            });
+                          } else {
+                            navigate('Login');
+                          }
+                        }}>
                         <Text style={{color: 'white'}}>Buy</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={styles.ActionBtn}
-                        //   onPress={() => {
-                        //     if (authContext?.user) {
-                        //       addItem({
-                        //         id: data?.data.id,
-                        //         image: data?.data.image,
-                        //         title: data?.data.title,
-                        //         price_in_etb: data?.data.price_in_etb,
-                        //         price_in_usd: data?.data.price_in_usd,
-                        //         quantity: 1,
-                        //         type: data?.data.type,
-                        //       });
-                        //     } else {
-                        //       router.navigate('/(account)/login_modal');
-                        //     }
-                        //   }}
-                      >
+                        onPress={() => {
+                          if (authContext?.user) {
+                            addItem({
+                              id: data?.data.id,
+                              image: data?.data.image,
+                              title: data?.data.title,
+                              price_in_etb: data?.data.price_in_etb,
+                              price_in_usd: data?.data.price_in_usd,
+                              quantity: 1,
+                              type: data?.data.type,
+                            });
+                          } else {
+                            navigate('Login');
+                          }
+                        }}>
                         <Text>Add To Cart</Text>
                       </TouchableOpacity>
                     </>
@@ -164,8 +162,7 @@ export default function ExplanationAudioDetail() {
                     <>
                       <TouchableOpacity
                         style={[styles.ActionBtn, {backgroundColor: '#212121'}]}
-                        //   onPress={() => router.navigate('/cart_stack')}
-                      >
+                        onPress={() => navigate('Cart')}>
                         <Text style={{color: 'white'}}>Go To Cart</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
@@ -310,8 +307,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   title: {
+    color: colors.primary,
     fontSize: 28,
     fontWeight: '800',
-    color: '#552f6e',
   },
 });

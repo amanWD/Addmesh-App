@@ -15,40 +15,30 @@ interface AuthContextType {
   setUser: any;
   token: null | TokenType;
   initAuth: () => void;
-  register: (
-    user: RegisterUserType,
-  ) => Promise<AxiosResponse<any, any> | undefined>;
+  register: (user: RegisterUserType) => Promise<any>;
   verifyOTP: (
     activation_code: string,
   ) => Promise<AxiosResponse<any, any> | undefined>;
-  resendOTP: (
-    email: string,
-    phone_number: string,
-    preferred_contact: 'email' | 'phone',
-  ) => Promise<AxiosResponse<any, any> | undefined>;
-  login: (
-    email: string,
-    password: string,
-  ) => Promise<AxiosResponse<any, any> | undefined>;
+  resendOTP: (email: string) => Promise<any>;
+  login: (email: string, password: string) => Promise<any>;
   getRefreshToken: () => Promise<void>;
   logout: () => void;
-  updateUserInfo: (
-    name: string,
-  ) => Promise<AxiosResponse<any, any> | undefined>;
+  updateUserInfo: (name: string) => Promise<any>;
   transferAccount: (
-    newEmailOrPhone: string,
+    newEmail: string,
+    newPhone: string,
+    transferType: 'email' | 'phone',
     password: string,
-    transferType: 'email' | 'phone',
-  ) => Promise<AxiosResponse<any, any> | undefined>;
-  transferAccountConfirm: (
-    newEmailOrPhone: string,
+  ) => Promise<any>;
+  resetPassword: (email: string) => Promise<any>;
+  resetPasswordConfirm: (
+    email: string,
     code: string,
-    transferType: 'email' | 'phone',
-  ) => Promise<AxiosResponse<any, any> | undefined>;
-  changePassword: (
-    passwordData: ChangePasswordType,
-  ) => Promise<AxiosResponse<any, any> | undefined>;
-  deleteAccount: (password: string) => Promise<void>;
+    new_password: string,
+    re_new_password: string,
+  ) => Promise<any>;
+  changePassword: (passwordData: ChangePasswordType) => Promise<any>;
+  deleteAccount: (password: string) => Promise<any>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -99,7 +89,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
 
       return response;
     } catch (error) {
-      console.error('Register Failed ', error);
+      return error;
     }
   };
 
@@ -115,19 +105,15 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
     }
   };
 
-  const resendOTP = async (
-    email: string,
-    phone_number: string,
-    preferred_contact: 'email' | 'phone',
-  ) => {
+  const resendOTP = async (email: string) => {
     try {
       const response = await api.post('account/auth/resend-activation/', {
-        email_or_phone: preferred_contact === 'email' ? email : phone_number,
+        email_or_phone: email,
       });
 
       return response;
     } catch (error) {
-      console.log('Failed Resending Code');
+      return error;
     }
   };
 
@@ -139,8 +125,6 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
       });
 
       setToken(response.data);
-
-      console.log(response);
 
       await AsyncStorage.setItem('token', JSON.stringify(response.data));
 
@@ -158,7 +142,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
         return response;
       }
     } catch (e) {
-      console.error('login failed ', e);
+      return e;
     }
   };
 
@@ -198,58 +182,58 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
         name: name,
       });
 
-      setUser({
-        id: response.data.id,
-        name: response.data.name,
-        email: response.data.email,
-        phone_number: response.data.phone_number,
-        is_admin: response.data.is_admin,
-      });
-
-      await getRefreshToken();
-
       return response;
     } catch (e) {
-      console.error('Updating user info faied', e);
+      return e;
     }
   };
 
   const transferAccount = async (
-    newEmailOrPhone: string,
-    password: string,
+    newEmail: string,
+    newPhone: string,
     transferType: 'email' | 'phone',
+    password: string,
   ) => {
     try {
       const response = await api.post('account/auth/transfer-account/', {
-        new_email_or_phone: newEmailOrPhone,
+        new_email: newEmail,
+        new_phone: newPhone,
         transfer_type: transferType,
         current_password: password,
       });
-
       return response;
-    } catch (e) {
-      console.log('Email transfer failed', e);
+    } catch (error) {
+      return error;
     }
   };
 
-  const transferAccountConfirm = async (
-    newEmailOrPhone: string,
+  const resetPassword = async (email: string) => {
+    try {
+      const response = await api.post('account/auth/reset-password/', {
+        email: email,
+      });
+      return response;
+    } catch (error) {
+      return error;
+    }
+  };
+
+  const resetPasswordConfirm = async (
+    email: string,
     code: string,
-    transferType: 'email' | 'phone',
+    new_password: string,
+    re_new_password: string,
   ) => {
     try {
-      const response = await api.post(
-        'account/auth/transfer-account-confirm/',
-        {
-          new_email_or_phone: newEmailOrPhone,
-          transfer_type: transferType,
-          code: code,
-        },
-      );
-
+      const response = await api.post('account/auth/reset-password-confirm/', {
+        email: email,
+        code: code,
+        new_password: new_password,
+        re_new_password: re_new_password,
+      });
       return response;
-    } catch (e) {
-      console.log('Email transfer failed', e);
+    } catch (error) {
+      return error;
     }
   };
 
@@ -261,7 +245,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
 
       return response;
     } catch (error) {
-      console.error(error);
+      return error;
     }
   };
 
@@ -279,7 +263,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
 
       console.log(response);
     } catch (error) {
-      logout();
+      return error;
     }
   };
 
@@ -298,7 +282,8 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({
         logout,
         updateUserInfo,
         transferAccount,
-        transferAccountConfirm,
+        resetPassword,
+        resetPasswordConfirm,
         changePassword,
         deleteAccount,
       }}>

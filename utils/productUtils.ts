@@ -7,21 +7,8 @@ export const toggleSave = async (
   refetch?: any,
 ) => {
   setLoadingSave(true);
-  const response = await api
-    .post(`saved/toggleSaveProduct/`, {
-      product_id: id,
-    })
-    .then(() => {
-      refetch();
-      setLoadingSave(false);
-      Toast.show({type: 'success', text1: 'Successfully Saved!'});
-    })
-    .catch(() => {
-      Toast.show({
-        type: 'error',
-        text1: 'Failed to save',
-        text2: 'You must have and account!',
-      });
-      setLoadingSave(false);
-    });
+  const response = await api.post(`saved/toggleSaveProduct/`, {
+    product_id: id,
+  });
+  return response;
 };

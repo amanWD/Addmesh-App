@@ -2,6 +2,8 @@ import {ReactNode, useContext} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {AuthContext} from '../context/AuthContext';
 import Loading from './Loading';
+import colors from '../styles/color';
+import {useRoute} from '@react-navigation/native';
 
 type ScreenProps = {
   children: ReactNode;
@@ -20,30 +22,41 @@ export const Screen = ({
 }: ScreenProps) => {
   const authContext = useContext(AuthContext);
 
+  const router = useRoute();
+
   if (error?.status === 401) authContext?.setUser(null);
 
   return (
-    <View style={styles.container}>
+    <>
       {isLoading ? (
-        <Loading size={18} color="black" />
+        <View style={styles.container}>
+          <Loading size={32} color={colors.primaryBorder} />
+        </View>
       ) : isError && error?.status === 401 ? (
         <TouchableOpacity>
-          <Text>Login</Text>
+          <Text>You need to login in order to access this page</Text>
         </TouchableOpacity>
       ) : data?.data?.length === 0 ? (
-        <Text>No Item</Text>
+        <View style={styles.container}>
+          <Text>
+            {router.name === 'Library'
+              ? 'Comming Soon!'
+              : router.name === 'MyShelf'
+              ? 'No item has been bought!'
+              : router.name === 'Saved'
+              ? 'No item has been saved!'
+              : 'No Item'}
+          </Text>
+        </View>
       ) : (
-        <View>{children}</View>
+        <>{children}</>
       )}
-    </View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: 500,
+    marginTop: 12,
   },
 });

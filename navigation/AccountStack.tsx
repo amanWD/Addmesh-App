@@ -9,23 +9,27 @@ import {ForgetPasswordConfirm} from '../screens/Account/ForgetPasswordConfirm';
 import {ChangePassword} from '../screens/Account/ChangePassword';
 import AuthenticationHeader from '../components/Headers/AuthenticationHeader';
 import {Login} from '../screens/Account/Login';
+import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
+import colors from '../styles/color';
 
 const Stack = createNativeStackNavigator<AccountStackParamList>();
 
 export default function AccountStack() {
   return (
-    <Stack.Navigator
-      screenOptions={{header: AuthenticationHeader, presentation: 'modal'}}>
-      <Stack.Screen name="Profile" component={Profile} />
-      <Stack.Screen name="Login" component={Login} />
-      <Stack.Screen name="Register" component={Register} />
-      <Stack.Screen name="VerifyOtp" component={VerifyOtp} />
-      <Stack.Screen name="ForgetPassword" component={ForgetPassword} />
-      <Stack.Screen
-        name="ForgetPasswordConfirm"
-        component={ForgetPasswordConfirm}
-      />
-      <Stack.Screen name="ChangePassword" component={ChangePassword} />
-    </Stack.Navigator>
+    <>
+      <Stack.Navigator
+        screenOptions={{header: AuthenticationHeader, presentation: 'modal'}}>
+        <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Register" component={Register} />
+        <Stack.Screen name="VerifyOtp" component={VerifyOtp} />
+        <Stack.Screen name="ForgetPassword" component={ForgetPassword} />
+        <Stack.Screen
+          name="ForgetPasswordConfirm"
+          component={ForgetPasswordConfirm}
+        />
+        <Stack.Screen name="ChangePassword" component={ChangePassword} />
+      </Stack.Navigator>
+    </>
   );
 }

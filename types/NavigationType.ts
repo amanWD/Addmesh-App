@@ -2,6 +2,9 @@ export type RootNavigationParamList = {
   Tabs: undefined;
   Account: undefined;
   EpubReader: undefined;
+  WebViewPage: {uri: string};
+  Cart: undefined;
+  Search: undefined;
 };
 
 export type TabsParamList = {
@@ -26,9 +29,9 @@ export type StackParamList = {
 export type AccountStackParamList = {
   Profile: undefined;
   Login: undefined;
-  VerifyOtp: undefined;
+  VerifyOtp: {email: string};
   Register: undefined;
   ForgetPassword: undefined;
-  ForgetPasswordConfirm: undefined;
+  ForgetPasswordConfirm: {email: string};
   ChangePassword: undefined;
 };

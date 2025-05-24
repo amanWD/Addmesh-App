@@ -1,4 +1,3 @@
-// trackPlayerService.ts
 import TrackPlayer, {Event, State, Capability} from 'react-native-track-player';
 
 const service = async () => {

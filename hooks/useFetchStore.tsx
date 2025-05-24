@@ -23,8 +23,8 @@ type FetchType = {
 
 export const useFetchStore = create<FetchType>(set => ({
   fetchData: {
-    url: 'blogAPI/blogs/',
-    name: 'Blogs',
+    url: 'ebookAPI/products/',
+    name: 'Ebooks',
   },
   changeFetchData: (url: UrlType, name: nameType) => {
     set({fetchData: {url: url, name: name}});

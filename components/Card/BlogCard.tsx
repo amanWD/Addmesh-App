@@ -6,20 +6,21 @@ import {BlogType} from '../../types/ProductType';
 import {useNavigation} from '@react-navigation/native';
 import {StackParamList} from '../../types/NavigationType';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 type NavigationProps = NativeStackNavigationProp<StackParamList>;
 
 const BlogCard = ({
   id,
   title,
-  created_at: createdAt,
-  updated_at: updatedAt,
+  created_at,
+  updated_at,
   description,
   tag,
-  isSaved,
+  is_saved,
 }: BlogType) => {
-  const readableCreatedDate = format(new Date(createdAt), 'PPP');
-  const readableUpdatedDate = format(new Date(updatedAt), 'PPP');
+  const readableCreatedDate = format(new Date(created_at), 'PPP');
+  const readableUpdatedDate = format(new Date(updated_at), 'PPP');
 
   const {navigate} = useNavigation<NavigationProps>();
 
@@ -29,7 +30,9 @@ const BlogCard = ({
       style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{title} </Text>
-        {isSaved ? <Text>Save</Text> : null}
+        {is_saved ? (
+          <MaterialIcons name="bookmark" size={22} color="black" />
+        ) : null}
       </View>
       <Text style={styles.body}>{description.slice(0, 200)}</Text>
       <View style={styles.footer}>
@@ -63,7 +66,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     display: 'flex',
     justifyContent: 'center',
-    gap: 6,
+    gap: 3,
   },
   title: {
     fontWeight: 500,
@@ -74,7 +77,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
   },
   body: {
     fontWeight: 400,

@@ -6,6 +6,7 @@ import {StackParamList} from '../types/NavigationType';
 import EBookDetail from '../screens/Detail/EbookDetail';
 import AudioBookDetail from '../screens/Detail/AudioBookDetail';
 import ExplanationAudioDetail from '../screens/Detail/ExplanationAudioDetail';
+import EventDetail from '../screens/Detail/EventDetail';
 
 const Stack = createNativeStackNavigator<StackParamList>();
 
@@ -20,6 +21,7 @@ export default function LibraryStack() {
         name="ExplanationAudioDetail"
         component={ExplanationAudioDetail}
       />
+      <Stack.Screen name="EventDetail" component={EventDetail} />
     </Stack.Navigator>
   );
 }

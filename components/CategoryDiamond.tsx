@@ -1,38 +1,36 @@
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import colors from '../styles/color';
+import {useCategoryStore} from '../hooks/useCategoryStore';
 
-type CategoryDiamondProps = {
-  setFilterQuery: (filterQuery: string) => void;
-};
-
-export const CategoryDiamond = ({setFilterQuery}: CategoryDiamondProps) => {
+export const CategoryDiamond = () => {
+  const {changeCategory} = useCategoryStore();
   return (
     <View style={styles.container}>
       <TouchableOpacity
         style={styles.archive}
-        onPress={() => setFilterQuery('archive')}>
+        onPress={() => changeCategory('Archive')}>
         <Text style={styles.archiveText}>Archive</Text>
       </TouchableOpacity>
       <View style={styles.diamondContainer}>
         <TouchableOpacity
           style={styles.diamond}
-          onPress={() => setFilterQuery('revelation')}>
-          <Text style={styles.diamondText}>REVELATION</Text>
+          onPress={() => changeCategory('Divine Revelation')}>
+          <Text style={styles.diamondText}>DIVINE REVELATION</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.diamond}
-          onPress={() => setFilterQuery('alchemy')}>
-          <Text style={styles.diamondText}>ALCHEMY</Text>
+          onPress={() => changeCategory('Oneness')}>
+          <Text style={styles.diamondText}>ONENESS</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.diamond}
-          onPress={() => setFilterQuery('gate')}>
-          <Text style={styles.diamondText}>GATE</Text>
+          onPress={() => changeCategory('Chronicle of Creation')}>
+          <Text style={styles.diamondText}>CHRONICLE OF CREATION</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.diamond}
-          onPress={() => setFilterQuery('metaphysics')}>
-          <Text style={styles.diamondText}>METAPHYSICS</Text>
+          onPress={() => changeCategory('Sacred Blueprint')}>
+          <Text style={styles.diamondText}>SACRED BLUEPRINT</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -43,6 +41,7 @@ const styles = StyleSheet.create({
   container: {
     position: 'relative',
     width: 380,
+    marginVertical: 100,
   },
   diamondContainer: {
     display: 'flex',
@@ -51,6 +50,17 @@ const styles = StyleSheet.create({
     gap: 10,
     flexWrap: 'wrap',
     transform: [{rotateZ: '45deg'}],
+    // iOS shadow
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.7,
+    shadowRadius: 10,
+
+    // Android shadow
+    elevation: 5,
   },
   diamond: {
     display: 'flex',
@@ -63,6 +73,7 @@ const styles = StyleSheet.create({
   },
   diamondText: {
     fontWeight: 700,
+    textAlign: 'center',
     color: colors.secondary,
     transform: [{rotateZ: '-45deg'}],
   },

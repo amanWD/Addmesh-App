@@ -1,10 +1,15 @@
-import {useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import colors from '../styles/color';
 import {useTranslation} from 'react-i18next';
+import {useNavigation} from '@react-navigation/native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Entypo from 'react-native-vector-icons/Entypo';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export const Settings = () => {
   const {t, i18n} = useTranslation();
+
+  const {navigate} = useNavigation<any>();
 
   return (
     <View style={styles.container}>
@@ -45,23 +50,60 @@ export const Settings = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigate('Account')}>
         <Text style={styles.btnText}>{t('account')}</Text>
+        <MaterialIcons
+          name="account-circle"
+          size={28}
+          color={colors.primaryBorder}
+        />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() =>
+          navigate('WebViewPage', {uri: 'https://stage.addmeshbook.com/About'})
+        }>
         <Text style={styles.btnText}>{t('about')}</Text>
+        <Entypo
+          name="info-with-circle"
+          size={26}
+          color={colors.primaryBorder}
+        />
       </TouchableOpacity>
       <TouchableOpacity style={styles.button}>
         <Text style={styles.btnText}>{t('help')}</Text>
+        <Entypo
+          name="help-with-circle"
+          size={26}
+          color={colors.primaryBorder}
+        />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() =>
+          navigate('WebViewPage', {
+            uri: 'https://stage.addmeshbook.com/Contact',
+          })
+        }>
         <Text style={styles.btnText}>{t('contact_us')}</Text>
+        <MaterialCommunityIcons
+          name="message-processing"
+          size={27}
+          color={colors.primaryBorder}
+        />
       </TouchableOpacity>
       <View style={styles.button}>
         <Text style={styles.btnText}>{t('version')}</Text>
         <Text style={{color: colors.purple}}>2.0.0</Text>
       </View>
-      <TouchableOpacity>
+      <TouchableOpacity
+        onPress={() =>
+          navigate('WebViewPage', {
+            uri: 'https://stage.addmeshbook.com/PrivacyPolicy',
+          })
+        }>
         <Text style={styles.privacyPolicy}>Privacy Policy</Text>
       </TouchableOpacity>
     </View>

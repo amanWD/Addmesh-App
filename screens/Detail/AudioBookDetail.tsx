@@ -1,5 +1,5 @@
 import {useQuery} from '@tanstack/react-query';
-import React, {useLayoutEffect, useState} from 'react';
+import React, {useContext, useLayoutEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -15,8 +15,11 @@ import {useCartStore} from '../../hooks/useCartStore';
 import api from '../../utils/api';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {StackParamList} from '../../types/NavigationType';
-import {CollapsibleImage} from '../../components/CollapsibleImage';
+import {CollapsibleHeader} from '../../components/Headers/CollapsibleHeader';
 import {Screen} from '../../components/Screen';
+import {AuthContext} from '../../context/AuthContext';
+import colors from '../../styles/color';
+import {useIdListStore} from '../../hooks/useIdListStore';
 
 type DetailRouteProp = RouteProp<StackParamList, 'AudioBookDetail'>;
 
@@ -24,6 +27,10 @@ export default function AudioBookDetail() {
   const route = useRoute<DetailRouteProp>();
 
   const {id} = route.params;
+
+  const authContext = useContext(AuthContext);
+
+  const {navigate} = useNavigation<any>();
 
   const [audioBookId, setAudioBookId] = useState(id);
 
@@ -71,11 +78,12 @@ export default function AudioBookDetail() {
   return (
     <Screen isLoading={isLoading} isError={isError} error={error} data={data}>
       <View style={styles.container}>
-        <CollapsibleImage
+        <CollapsibleHeader
           data={data}
           scrollY={scrollY}
           refetch={refetch}
-          type="Audio Book"
+          setId={setAudioBookId}
+          type="Audio Books"
         />
         <ScrollView
           style={{alignSelf: 'flex-start', paddingTop: 20}}
@@ -93,7 +101,7 @@ export default function AudioBookDetail() {
           }>
           <View style={styles.audioBookDetailContainer}>
             <Text style={styles.title}>{data?.data.title}</Text>
-            {data?.data.is_bought ? null : (
+            {data?.data.is_bought || data?.data.is_free ? null : (
               <>
                 <Text style={{marginTop: 10, fontSize: 18}}>
                   <Text style={{fontWeight: '900', fontSize: 16}}>Price:</Text>{' '}
@@ -111,48 +119,44 @@ export default function AudioBookDetail() {
                     <>
                       <TouchableOpacity
                         style={[styles.ActionBtn, {backgroundColor: '#212121'}]}
-                        //   onPress={() => {
-                        //     if (authContext?.user) {
-                        //       addItem({
-                        //         id: data?.data.id,
-                        //         image: data?.data.image,
-                        //         title: data?.data.title,
-                        //         price_in_etb: data?.data.price_in_etb,
-                        //         price_in_usd: data?.data.price_in_usd,
-                        //         quantity: 1,
-                        //         type: data?.data.type,
-                        //       });
-                        //       router.navigate({
-                        //         pathname: '/web_view_stack',
-                        //         params: {
-                        //           uri: 'http://10.6.159.147:3000/Cart/Checkout',
-                        //         },
-                        //       });
-                        //     } else {
-                        //       router.navigate('/(account)/login_modal');
-                        //     }
-                        //   }}
-                      >
+                        onPress={() => {
+                          if (authContext?.user) {
+                            addItem({
+                              id: data?.data.id,
+                              image: data?.data.image,
+                              title: data?.data.title,
+                              price_in_etb: data?.data.price_in_etb,
+                              price_in_usd: data?.data.price_in_usd,
+                              quantity: 1,
+                              type: data?.data.type,
+                            });
+
+                            navigate('WebViewPage', {
+                              uri: 'https://stage.addmeshbook.com/Cart/Checkout',
+                            });
+                          } else {
+                            navigate('Login');
+                          }
+                        }}>
                         <Text style={{color: 'white'}}>Buy</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={styles.ActionBtn}
-                        //   onPress={() => {
-                        //     if (authContext?.user) {
-                        //       addItem({
-                        //         id: data?.data.id,
-                        //         image: data?.data.image,
-                        //         title: data?.data.title,
-                        //         price_in_etb: data?.data.price_in_etb,
-                        //         price_in_usd: data?.data.price_in_usd,
-                        //         quantity: 1,
-                        //         type: data?.data.type,
-                        //       });
-                        //     } else {
-                        //       router.navigate('/(account)/login_modal');
-                        //     }
-                        //   }}
-                      >
+                        onPress={() => {
+                          if (authContext?.user) {
+                            addItem({
+                              id: data?.data.id,
+                              image: data?.data.image,
+                              title: data?.data.title,
+                              price_in_etb: data?.data.price_in_etb,
+                              price_in_usd: data?.data.price_in_usd,
+                              quantity: 1,
+                              type: data?.data.type,
+                            });
+                          } else {
+                            navigate('Login');
+                          }
+                        }}>
                         <Text>Add To Cart</Text>
                       </TouchableOpacity>
                     </>
@@ -160,8 +164,7 @@ export default function AudioBookDetail() {
                     <>
                       <TouchableOpacity
                         style={[styles.ActionBtn, {backgroundColor: '#212121'}]}
-                        //   onPress={() => router.navigate('/cart_stack')}
-                      >
+                        onPress={() => navigate('Cart')}>
                         <Text style={{color: 'white'}}>Go To Cart</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
@@ -308,7 +311,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   title: {
-    color: '#552f6e',
+    color: colors.primary,
     fontSize: 28,
     fontWeight: '800',
   },

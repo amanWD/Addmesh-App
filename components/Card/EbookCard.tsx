@@ -4,6 +4,8 @@ import {EbookType} from '../../types/ProductType';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {StackParamList} from '../../types/NavigationType';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Entypo from 'react-native-vector-icons/Entypo';
 
 type NavigationProps = NativeStackNavigationProp<StackParamList>;
 
@@ -11,8 +13,9 @@ const EBookCard = ({
   id,
   image,
   title,
-  is_bought: isBought,
-  is_saved: isSaved,
+  is_bought,
+  is_free,
+  is_saved,
 }: EbookType) => {
   const {navigate} = useNavigation<NavigationProps>();
 
@@ -29,10 +32,16 @@ const EBookCard = ({
           gap: 2,
           margin: 2,
         }}>
-        {isBought ? isSaved ? <Text>S</Text> : null : <Text>L</Text>}
+        {is_bought || is_free ? (
+          is_saved ? (
+            <MaterialIcons name="bookmark" size={22} color="#3f8c62" />
+          ) : null
+        ) : (
+          <Entypo name="lock" size={18} color="#9c112c" />
+        )}
         <Text>
-          {title.slice(0, 18)}
-          {title.length > 18 ? '...' : ''}
+          {title.slice(0, 15)}
+          {title.length > 15 ? '...' : ''}
         </Text>
       </View>
     </TouchableOpacity>

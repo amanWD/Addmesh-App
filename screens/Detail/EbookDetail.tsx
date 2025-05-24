@@ -1,5 +1,5 @@
 import {useQuery} from '@tanstack/react-query';
-import React, {useContext, useLayoutEffect, useState} from 'react';
+import React, {useContext, useEffect, useLayoutEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -16,20 +16,25 @@ import api from '../../utils/api';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {StackParamList} from '../../types/NavigationType';
 import {Screen} from '../../components/Screen';
-import {CollapsibleImage} from '../../components/CollapsibleImage';
+import {CollapsibleHeader} from '../../components/Headers/CollapsibleHeader';
+import {AuthContext} from '../../context/AuthContext';
+import colors from '../../styles/color';
+import {useIdListStore} from '../../hooks/useIdListStore';
 
 type DetailRouteProp = RouteProp<StackParamList, 'EbookDetail'>;
 
 export default function EBookDetail() {
   const route = useRoute<DetailRouteProp>();
 
-  const navigation = useNavigation();
+  const {navigate, getParent} = useNavigation<any>();
+
+  const authContext = useContext(AuthContext);
 
   const {id} = route.params;
 
-  const [ebookId] = useState(id);
+  const [ebookId, setEbookId] = useState(id);
 
-  const {removeItem, cart} = useCartStore();
+  const {removeItem, cart, addItem} = useCartStore();
 
   const scrollY = React.useRef(new Animated.Value(0)).current;
 
@@ -54,7 +59,7 @@ export default function EBookDetail() {
       : 'Unknown date';
 
   useLayoutEffect(() => {
-    const parent = navigation.getParent();
+    const parent = getParent();
     parent?.setOptions({
       headerShown: false,
     });
@@ -64,16 +69,17 @@ export default function EBookDetail() {
         headerShown: true,
       });
     };
-  }, [navigation]);
+  }, [navigate]);
 
   return (
     <Screen isLoading={isLoading} isError={isError} error={error} data={data}>
       <View style={styles.container}>
-        <CollapsibleImage
+        <CollapsibleHeader
           data={data}
           scrollY={scrollY}
           refetch={refetch}
-          type="Ebook"
+          setId={setEbookId}
+          type="Ebooks"
         />
         <ScrollView
           style={{alignSelf: 'flex-start', paddingTop: 20}}
@@ -91,7 +97,7 @@ export default function EBookDetail() {
           }>
           <View style={styles.ebookDetailContainer}>
             <Text style={styles.title}>{data?.data.title}</Text>
-            {data?.data.is_bought ? null : (
+            {data?.data.is_bought || data?.data.is_free ? null : (
               <>
                 <Text style={{marginTop: 10, fontSize: 18}}>
                   <Text style={{fontWeight: '900', fontSize: 16}}>Price:</Text>{' '}
@@ -109,48 +115,44 @@ export default function EBookDetail() {
                     <>
                       <TouchableOpacity
                         style={[styles.ActionBtn, {backgroundColor: '#212121'}]}
-                        //   onPress={() => {
-                        //     if (authContext?.user) {
-                        //       addItem({
-                        //         id: data?.data.id,
-                        //         image: data?.data.image,
-                        //         title: data?.data.title,
-                        //         price_in_etb: data?.data.price_in_etb,
-                        //         price_in_usd: data?.data.price_in_usd,
-                        //         quantity: 1,
-                        //         type: data?.data.type,
-                        //       });
-                        //       router.navigate({
-                        //         pathname: '/web_view_stack',
-                        //         params: {
-                        //           uri: 'http://10.6.159.147:3000/Cart/Checkout',
-                        //         },
-                        //       });
-                        //     } else {
-                        //       router.navigate('/(account)/login_modal');
-                        //     }
-                        //   }}
-                      >
+                        onPress={() => {
+                          if (authContext?.user) {
+                            addItem({
+                              id: data?.data.id,
+                              image: data?.data.image,
+                              title: data?.data.title,
+                              price_in_etb: data?.data.price_in_etb,
+                              price_in_usd: data?.data.price_in_usd,
+                              quantity: 1,
+                              type: data?.data.type,
+                            });
+
+                            navigate('WebViewPage', {
+                              uri: 'https://stage.addmeshbook.com/Cart/Checkout',
+                            });
+                          } else {
+                            navigate('Account');
+                          }
+                        }}>
                         <Text style={{color: 'white'}}>Buy</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={styles.ActionBtn}
-                        //   onPress={() => {
-                        //     if (authContext?.user) {
-                        //       addItem({
-                        //         id: data?.data.id,
-                        //         image: data?.data.image,
-                        //         title: data?.data.title,
-                        //         price_in_etb: data?.data.price_in_etb,
-                        //         price_in_usd: data?.data.price_in_usd,
-                        //         quantity: 1,
-                        //         type: data?.data.type,
-                        //       });
-                        //     } else {
-                        //       router.navigate('/(account)/login_modal');
-                        //     }
-                        //   }}
-                      >
+                        onPress={() => {
+                          if (authContext?.user) {
+                            addItem({
+                              id: data?.data.id,
+                              image: data?.data.image,
+                              title: data?.data.title,
+                              price_in_etb: data?.data.price_in_etb,
+                              price_in_usd: data?.data.price_in_usd,
+                              quantity: 1,
+                              type: data?.data.type,
+                            });
+                          } else {
+                            navigate('Account');
+                          }
+                        }}>
                         <Text>Add To Cart</Text>
                       </TouchableOpacity>
                     </>
@@ -158,8 +160,7 @@ export default function EBookDetail() {
                     <>
                       <TouchableOpacity
                         style={[styles.ActionBtn, {backgroundColor: '#212121'}]}
-                        //   onPress={() => router.navigate('/cart_stack')}
-                      >
+                        onPress={() => navigate('Cart')}>
                         <Text style={{color: 'white'}}>Go To Cart</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
@@ -302,6 +303,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#552f6e',
+    color: colors.primary,
   },
 });

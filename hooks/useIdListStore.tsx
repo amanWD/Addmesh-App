@@ -1,25 +1,12 @@
 import {create} from 'zustand';
+import {ProductType} from '../types/ProductType';
 
 type IdListType = {
   idList: string[];
   setIdList: (idList: string[]) => void;
 
-  idType:
-    | 'Blogs'
-    | 'Ebooks'
-    | 'Audio Books'
-    | 'Explanation Audios'
-    | 'Events'
-    | null;
-  setIdType: (
-    type:
-      | 'Blogs'
-      | 'Ebooks'
-      | 'Audio Books'
-      | 'Explanation Audios'
-      | 'Events'
-      | null,
-  ) => void;
+  idType: ProductType | null;
+  setIdType: (type: ProductType | null) => void;
 };
 
 export const useIdListStore = create<IdListType>(set => ({
@@ -29,15 +16,7 @@ export const useIdListStore = create<IdListType>(set => ({
   setIdList: (idList: string[]) => {
     set({idList: idList});
   },
-  setIdType: (
-    type:
-      | 'Blogs'
-      | 'Ebooks'
-      | 'Audio Books'
-      | 'Explanation Audios'
-      | 'Events'
-      | null,
-  ) => {
+  setIdType: (type: ProductType | null) => {
     set({idType: type});
   },
 }));
